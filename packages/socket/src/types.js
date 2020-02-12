@@ -11,8 +11,14 @@ type AbsintheSocket = {|
   phoenixSocket: PhoenixSocket
 |};
 
+type GraphQLResponse = {
+  errors?: Array<any>,
+  data?: Array<any>,
+  extensions?: {[string]: any}
+};
+
 type PushHandler<Response: Object> = {|
-  onError: (errorMessage: string) => any,
+  onError: (result: GraphQLResponse) => any,
   onSucceed: (response: Response) => any,
   onTimeout: () => any
 |};
@@ -21,7 +27,7 @@ type NotifierPushHandler<Response: Object> = {|
   onError: (
     absintheSocket: AbsintheSocket,
     notifier: Notifier<any, any>,
-    errorMessage: string
+    result: GraphQLResponse
   ) => any,
   onSucceed: (
     absintheSocket: AbsintheSocket,
@@ -34,4 +40,10 @@ type NotifierPushHandler<Response: Object> = {|
   ) => any
 |};
 
-export type {AbsintheSocket, NotifierPushHandler, Observer, PushHandler};
+export type {
+  AbsintheSocket,
+  NotifierPushHandler,
+  Observer,
+  PushHandler,
+  GraphQLResponse
+};

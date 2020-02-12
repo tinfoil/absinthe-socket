@@ -10,7 +10,11 @@ import requestStatuses from "./notifier/requestStatuses";
 import {createAbsintheDocEvent} from "./absinthe-event/absintheEventCreators";
 import {createErrorEvent} from "./notifier/event/eventCreators";
 
-import type {AbsintheSocket, NotifierPushHandler} from "./types";
+import type {
+  AbsintheSocket,
+  NotifierPushHandler,
+  GraphQLResponse
+} from "./types";
 import type {Notifier} from "./notifier/types";
 
 const pushAbsintheDocEvent = (absintheSocket, {request}, notifierPushHandler) =>
@@ -27,7 +31,20 @@ const setNotifierRequestStatusSending = (absintheSocket, notifier) =>
     requestStatus: requestStatuses.sending
   });
 
-const createRequestError = message => new Error(`request: ${message}`);
+const createRequestError = message => {
+  const error = new Error(`request: ${message}`);
+  error.name = "SocketError";
+
+  return error;
+};
+
+const createRequestErrorWithResult = (message, result) => {
+  const error = new Error(`request: ${message}`);
+  error.name = "SocketError";
+  error.result = result;
+
+  return error;
+};
 
 const onTimeout = (absintheSocket, notifier) =>
   notifierNotifyActive(
@@ -38,8 +55,13 @@ const onTimeout = (absintheSocket, notifier) =>
 const onError = (
   absintheSocket: AbsintheSocket,
   notifier: Notifier<any, any>,
-  errorMessage: string
-) => abortNotifier(absintheSocket, notifier, createRequestError(errorMessage));
+  result: GraphQLResponse
+) =>
+  abortNotifier(
+    absintheSocket,
+    notifier,
+    createRequestErrorWithResult("GraphQL error", result)
+  );
 
 const getNotifierPushHandler = onSucceed => ({onError, onSucceed, onTimeout});
 
