@@ -1,0 +1,6 @@
+version: "1"
+rules:
+  - base: master
+    upstream: absinthe-graphql:master
+    autoMerge: false
+    autoMergeHardReset: false
